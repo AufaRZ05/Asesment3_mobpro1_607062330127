@@ -34,4 +34,4 @@ object KelolaProdukApi {
     }
 }
 
-enum class ApiStatus { LOADING, SUCCESS }
+enum class ApiStatus { LOADING, SUCCESS, FAILED }
