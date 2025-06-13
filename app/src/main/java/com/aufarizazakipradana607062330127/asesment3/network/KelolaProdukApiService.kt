@@ -33,3 +33,5 @@ object KelolaProdukApi {
         return "$BASE_URL$imageId.png"
     }
 }
+
+enum class ApiStatus { LOADING, SUCCESS }
