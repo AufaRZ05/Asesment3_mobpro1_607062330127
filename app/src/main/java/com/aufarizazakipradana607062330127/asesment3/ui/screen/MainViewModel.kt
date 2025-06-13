@@ -15,6 +15,9 @@ class MainViewModel : ViewModel() {
     private val _produkList = mutableStateOf<List<KelolaProduk>>(emptyList())
     val produkList: State<List<KelolaProduk>> = _produkList
 
+    var data = mutableStateOf(emptyList<KelolaProduk>())
+        private set
+
     init {
         retrieveData()
     }
@@ -24,6 +27,9 @@ class MainViewModel : ViewModel() {
             try {
                 val response = KelolaProdukApi.service.getKelolaProduk()
                 val produk = response.data ?: emptyList()
+                _produkList.value = produk
+
+                data.value = produk
                 _produkList.value = produk
 
                 Log.d("MainViewModel", "Success: $produk")

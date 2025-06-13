@@ -28,4 +28,8 @@ object KelolaProdukApi {
     val service: KelolaProdukApiService by lazy {
         retrofit.create(KelolaProdukApiService::class.java)
     }
+
+    fun getKelolaProdukUrl(imageId: String): String {
+        return "$BASE_URL$imageId.png"
+    }
 }
