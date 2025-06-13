@@ -1,15 +1,14 @@
 package com.aufarizazakipradana607062330127.asesment3.ui.screen
-import android.graphics.Bitmap
-import com.aufarizazakipradana607062330127.asesment3.network.ApiStatus
 
+import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aufarizazakipradana607062330127.asesment3.model.KelolaProduk
+import com.aufarizazakipradana607062330127.asesment3.network.ApiStatus
 import com.aufarizazakipradana607062330127.asesment3.network.KelolaProdukApi
-import com.canhub.cropper.CropImage.CancelledResult.bitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -22,7 +21,6 @@ import java.io.ByteArrayOutputStream
 class MainViewModel : ViewModel() {
 
     private val _produkList = mutableStateOf<List<KelolaProduk>>(emptyList())
-    val produkList: State<List<KelolaProduk>> = _produkList
 
     var data = mutableStateOf(emptyList<KelolaProduk>())
         private set

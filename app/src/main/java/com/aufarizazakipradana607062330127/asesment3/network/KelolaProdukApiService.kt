@@ -48,9 +48,6 @@ object KelolaProdukApi {
         retrofit.create(KelolaProdukApiService::class.java)
     }
 
-    fun getKelolaProdukUrl(imageId: String): String {
-        return "$BASE_URL$imageId.png"
-    }
 }
 
 enum class ApiStatus { LOADING, SUCCESS, FAILED }
