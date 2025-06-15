@@ -14,6 +14,7 @@ import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 private const val BASE_URL = "http://103.87.67.74:3006/"
@@ -49,8 +50,8 @@ interface KelolaProdukApiService {
 
     @DELETE("/kelolaproduk/{Id}")
     suspend fun deleteKelolaProduk(
-        @Part("Id") Id: Int
-    )
+        @Path("Id") Id: Int
+    ): OpStatus
 
 }
 
