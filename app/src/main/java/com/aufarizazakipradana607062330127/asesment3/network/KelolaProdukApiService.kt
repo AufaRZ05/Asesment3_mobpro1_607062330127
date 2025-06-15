@@ -51,7 +51,7 @@ interface KelolaProdukApiService {
     @DELETE("/kelolaproduk/{Id}")
     suspend fun deleteKelolaProduk(
         @Path("Id") Id: Int
-    ): OpStatus
+    )
 
 }
 

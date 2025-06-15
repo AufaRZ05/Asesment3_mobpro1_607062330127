@@ -91,6 +91,9 @@ fun MainScreen(){
     var showDialog by remember { mutableStateOf(false) }
     var showKelolaProdukDialog by remember { mutableStateOf(false) }
 
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var produkToDelete by remember { mutableStateOf<KelolaProduk?>(null) }
+
     var bitmap: Bitmap? by remember { mutableStateOf(null) }
     val launcher = rememberLauncherForActivityResult(CropImageContract()) {
         bitmap = getCroppedImage(context.contentResolver, it)
@@ -152,7 +155,15 @@ fun MainScreen(){
             }
         }
     ) { innerPadding ->
-        ScreenContent(viewModel, Modifier.padding(innerPadding), user.email)
+        ScreenContent(
+            viewModel = viewModel,
+            modifier = Modifier.padding(innerPadding),
+            userId = user.email,
+            onDeleteClick = { produk -> // <-- Ini adalah lambda yang akan dipanggil dari ListItem
+                produkToDelete = produk // Simpan produk yang akan dihapus
+                showDeleteDialog = true // Tampilkan dialog
+            }
+        )
 
         if (showDialog) {
             ProfilDialog(
@@ -175,6 +186,33 @@ fun MainScreen(){
             }
         }
 
+        if (showDeleteDialog && produkToDelete != null) {
+            DeleteProdukDialog(
+                produk = produkToDelete!!,
+                onDismissRequest = { showDeleteDialog = false },
+                onConfirmDelete = {
+                    viewModel.deleteData(produkToDelete!!.id, produkToDelete!!.userId)
+                    showDeleteDialog = false
+                }
+            )
+        }
+
+        if (showDeleteDialog && produkToDelete != null) {
+            DeleteProdukDialog(
+                produk = produkToDelete!!, // Pastikan produkToDelete tidak null
+                onDismissRequest = {
+                    showDeleteDialog = false // Tutup dialog jika dibatalkan/dismiss
+                    produkToDelete = null // Reset produk yang akan dihapus
+                },
+                onConfirmDelete = {
+                    // Panggil fungsi deleteData dari ViewModel
+                    viewModel.deleteData(produkToDelete!!.id, user.email) // Kirim ID dan userId
+                    showDeleteDialog = false // Tutup dialog setelah konfirmasi
+                    produkToDelete = null // Reset produk yang akan dihapus
+                }
+            )
+        }
+
         if (errorMessage != null) {
             Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
             viewModel.clearMessage()
@@ -183,7 +221,7 @@ fun MainScreen(){
 }
 
 @Composable
-fun ScreenContent(viewModel: MainViewModel ,modifier: Modifier = Modifier, userId: String) {
+fun ScreenContent(viewModel: MainViewModel ,modifier: Modifier = Modifier, userId: String,  onDeleteClick: (KelolaProduk) -> Unit) {
     val data by viewModel.data
     val status by viewModel.status.collectAsState()
 
@@ -204,7 +242,13 @@ fun ScreenContent(viewModel: MainViewModel ,modifier: Modifier = Modifier, userI
                     columns = GridCells.Fixed(2),
                     contentPadding = PaddingValues(bottom = 80.dp)
                 ) {
-                    items(data) { ListItem(kelolaproduk = it) }
+                    items(data) { kelolaProduk ->
+                        ListItem(
+                            kelolaproduk = kelolaProduk,
+                            onDeleteClick = onDeleteClick,
+                            viewModel = viewModel // <-- Meneruskan callback
+                        )
+                    }
                 }
             } else {
                 Box(
@@ -236,7 +280,7 @@ fun ScreenContent(viewModel: MainViewModel ,modifier: Modifier = Modifier, userI
 }
 
 @Composable
-fun ListItem(kelolaproduk: KelolaProduk) {
+fun ListItem(kelolaproduk: KelolaProduk, viewModel: MainViewModel, onDeleteClick: (KelolaProduk) -> Unit) {
     Box(
         modifier = Modifier.padding(4.dp).border(1.dp, Color.Gray),
         contentAlignment = Alignment.BottomCenter
@@ -276,6 +320,18 @@ fun ListItem(kelolaproduk: KelolaProduk) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White
             )
+            IconButton(
+                onClick = {
+                    onDeleteClick(kelolaproduk)
+                }
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_delete_24),
+                    contentDescription = "Hapus",
+                    tint = Color.White
+                )
+            }
+
         }
     }
 }

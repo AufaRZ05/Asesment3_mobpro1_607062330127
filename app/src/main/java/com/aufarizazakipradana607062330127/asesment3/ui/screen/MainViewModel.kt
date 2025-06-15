@@ -74,6 +74,18 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun deleteData(Id: Int, userId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                KelolaProdukApi.service.deleteKelolaProduk(Id)
+                data.value = data.value.filter { it.id != Id }
+            } catch (e: Exception) {
+                Log.d("MainViewModel", "Failure: ${e.message}")
+                errorMessage.value = "Error: ${e.message}"
+            }
+        }
+    }
+
     private fun Bitmap.toMultipartBody(): MultipartBody.Part {
         val stream = ByteArrayOutputStream()
         compress(Bitmap.CompressFormat.JPEG, 80, stream)

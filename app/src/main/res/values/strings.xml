@@ -13,4 +13,6 @@
     <string name="kategori">Kategori</string>
     <string name="batal">Batal</string>
     <string name="simpan">Simpan</string>
+    <string name="konfirmasi_hapus">Konfirmasi Hapus</string>
+    <string name="hapus">Hapus</string>
 </resources>
