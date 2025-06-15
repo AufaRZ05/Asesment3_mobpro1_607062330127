@@ -31,13 +31,13 @@ interface KelolaProdukApiService {
     suspend fun getKelolaProduk(): KelolaProdukResponse
 
     @Multipart
-    @POST("/kelolaproduks?userId=aufa@gmail.com")
+    @POST("/kelolaproduks")
     suspend fun postKelolaProduk(
         @Header("Authorization") userId: String,
-        @Part("namaMerek") namaMerek: RequestBody,
-        @Part("harga") harga: RequestBody,
-        @Part("stok") stok: RequestBody,
-        @Part("kategori") kategori: RequestBody,
+        @Part("brandName") brandName: RequestBody,  // dulu: namaMerek
+        @Part("price") price: RequestBody,          // dulu: harga
+        @Part("stock") stock: RequestBody,          // dulu: stok
+        @Part("category") category: RequestBody,    // dulu: kategori
         @Part image: MultipartBody.Part
     ): OpStatus
 

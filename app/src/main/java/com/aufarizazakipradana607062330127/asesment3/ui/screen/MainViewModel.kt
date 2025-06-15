@@ -11,6 +11,7 @@ import com.aufarizazakipradana607062330127.asesment3.network.KelolaProdukApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -53,15 +54,15 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun saveData(userId: String, namaMerek: String, harga: Int, stok: Int, kategori: String, bitmap: Bitmap) {
+    fun saveData(userId: String, brandName: String, price: Int, stock: Int, category: String, bitmap: Bitmap) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val result = KelolaProdukApi.service.postKelolaProduk(
                     userId = userId,
-                    namaMerek = namaMerek.toRequestBody("text/plain".toMediaTypeOrNull()),
-                    harga = harga.toString().toRequestBody("text/plain".toMediaTypeOrNull()),
-                    stok = stok.toString().toRequestBody("text/plain".toMediaTypeOrNull()),
-                    kategori = kategori.toRequestBody("text/plain".toMediaTypeOrNull()),
+                    brandName = brandName.toRequestBody("text/plain".toMediaType()),
+                    price = price.toString().toRequestBody("text/plain".toMediaType()),
+                    stock = stock.toString().toRequestBody("text/plain".toMediaType()),
+                    category = category.toRequestBody("text/plain".toMediaType()),
                     image = bitmap.toMultipartBody()
                 )
 
