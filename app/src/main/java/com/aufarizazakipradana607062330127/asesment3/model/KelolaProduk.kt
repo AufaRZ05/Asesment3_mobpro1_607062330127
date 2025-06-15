@@ -27,12 +27,12 @@ data class KelolaProduk(
 
 
 data class KelolaProdukResponse(
-    @Json(name = "kelolaproduk")
-    val data: List<KelolaProduk>?,
+    // Ubah nama variabel dari 'data' menjadi 'kelolaproduk' dan hapus anotasi @Json
+    val kelolaproduk: List<KelolaProduk>?, // Nama variabel disesuaikan dengan key JSON
 
     @Json(name = "status")
-    val status: Int,
+    val status: String,
 
-    @Json(name = "message") // Ditambahkan
-    val message: String? // Ditambahkan
+    @Json(name = "message")
+    val message: String?
 )

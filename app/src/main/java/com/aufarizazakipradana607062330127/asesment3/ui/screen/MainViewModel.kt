@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aufarizazakipradana607062330127.asesment3.model.KelolaProduk
+import com.aufarizazakipradana607062330127.asesment3.model.User
 import com.aufarizazakipradana607062330127.asesment3.network.ApiStatus
 import com.aufarizazakipradana607062330127.asesment3.network.KelolaProdukApi
 import kotlinx.coroutines.Dispatchers
@@ -35,13 +36,13 @@ class MainViewModel : ViewModel() {
             status.value = ApiStatus.LOADING
             try {
                 val response = KelolaProdukApi.service.getKelolaProduk(userId)
-                val produk = response.data ?: emptyList()
+                val produk = response.kelolaproduk ?: emptyList()
                 _produkList.value = produk
 
                 data.value = produk
                 _produkList.value = produk
 
-                Log.d("MainViewModel", "Success: $produk")
+                Log.d("MainViewModel", "Success: $produk $userId")
                 status.value = ApiStatus.SUCCESS
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Failure: ${e.message}", e)
@@ -54,7 +55,7 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val result = KelolaProdukApi.service.postKelolaProduk(
-                    userId = userId,
+                    userId = userId.toRequestBody("text/plain".toMediaType()),
                     brandName = brandName.toRequestBody("text/plain".toMediaType()),
                     price = price.toString().toRequestBody("text/plain".toMediaType()),
                     stock = stock.toString().toRequestBody("text/plain".toMediaType()),
@@ -62,7 +63,7 @@ class MainViewModel : ViewModel() {
                     image = bitmap.toMultipartBody()
                 )
 
-                if (result.status == "success")
+                if (result.status == "200")
                     retrieveData(userId)
                 else
                     throw Exception(result.message)
