@@ -27,8 +27,10 @@ private val retrofit = Retrofit.Builder()
 
 
 interface KelolaProdukApiService {
-    @GET("/kelolaproduks?userId=aufa@gmail.com")
-    suspend fun getKelolaProduk(): KelolaProdukResponse
+    @GET("/kelolaproduks")
+    suspend fun getKelolaProduk(
+        @Header("userId") userId: String
+    ): KelolaProdukResponse
 
     @Multipart
     @POST("/kelolaproduks")

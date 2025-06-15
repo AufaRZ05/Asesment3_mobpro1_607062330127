@@ -34,11 +34,11 @@ class MainViewModel : ViewModel() {
         retrieveData()
     }
 
-    fun retrieveData() {
+    fun retrieveData(userId: String = "all") {
         viewModelScope.launch(Dispatchers.IO) {
             status.value = ApiStatus.LOADING
             try {
-                val response = KelolaProdukApi.service.getKelolaProduk()
+                val response = KelolaProdukApi.service.getKelolaProduk(userId)
                 val produk = response.data ?: emptyList()
                 _produkList.value = produk
 
