@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -41,7 +42,8 @@ fun KelolaProdukDialog(
         price: String,
         stock: String,
         category: String
-    ) -> Unit
+    ) -> Unit,
+    onImageSelected: () -> Unit
 ) {
     var brandName by remember { mutableStateOf(produk?.brandName ?: "") } // Isi dengan data produk jika ada
     var price by remember { mutableStateOf(produk?.price?.toString() ?: "") }
@@ -107,6 +109,16 @@ fun KelolaProdukDialog(
                     )
                 }
 
+                if (isEditMode) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = onImageSelected, // Panggil callback saat tombol ditekan
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = stringResource(id = R.string.ganti_foto)) // Tambahkan string resource ini
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(16.dp))
                 OutlinedTextField(
                     value = brandName,
@@ -154,7 +166,8 @@ fun AddDialogPreview() {
         KelolaProdukDialog(
             bitmap = null,
             onDismissRequest = {},
-            onConfirm = { _, _, _, _ -> }
+            onConfirm = { _, _, _, _ -> },
+            onImageSelected = {}
         )
     }
 }

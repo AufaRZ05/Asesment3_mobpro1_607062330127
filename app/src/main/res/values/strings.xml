@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Asesment3</string>
+    <string name="app_name">Listrik Broto</string>
     <string name="gambar">Gambar %1$s</string>
     <string name="error">Gagal memuat data.. Koneksi error.</string>
     <string name="try_again">Coba lagi</string>
@@ -18,4 +18,5 @@
     <string name="update">Update</string>
     <string name="tambah_produk_baru">Tambah Produk Baru</string>
     <string name="edit_produk">Edit Produk</string>
+    <string name="ganti_foto">Ganti Foto</string>
 </resources>

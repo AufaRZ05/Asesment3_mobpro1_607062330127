@@ -189,16 +189,20 @@ fun MainScreen(){
             }
         }
 
-        if (showKelolaProdukDialog) {
+        if (showKelolaProdukDialog && produkToEdit == null) {
             KelolaProdukDialog(
                 bitmap = bitmap,
-                onDismissRequest = { showKelolaProdukDialog = false}) { namaMerek, harga, stok, kategori ->
-                Toast.makeText(context, "Menyimpan produk...", Toast.LENGTH_SHORT).show()
-                val hargaInt = harga.toIntOrNull() ?: 0
-                val stokInt = stok.toIntOrNull() ?: 0
-                viewModel.saveData(user.email, namaMerek, hargaInt, stokInt, kategori, bitmap!!)
-                showKelolaProdukDialog = false
-            }
+                onDismissRequest = { showKelolaProdukDialog = false; bitmap = null },
+                onConfirm = { brandName, price, stock, category ->
+                    Toast.makeText(context, "Menyimpan produk...", Toast.LENGTH_SHORT).show()
+                    val priceInt = price.toIntOrNull() ?: 0
+                    val stockInt = stock.toIntOrNull() ?: 0
+                    viewModel.saveData(user.email, brandName, priceInt, stockInt, category, bitmap!!)
+                    showKelolaProdukDialog = false
+                    bitmap = null
+                },
+                onImageSelected = { /* Tidak ada aksi di sini untuk mode tambah, karena FAB sudah memicu pemilihan gambar */ }
+            )
         }
 
         if (showDeleteDialog && produkToDelete != null) {
@@ -230,25 +234,38 @@ fun MainScreen(){
 
         if (showEditProdukDialog && produkToEdit != null) {
             KelolaProdukDialog(
-                bitmap = bitmap, // Bitmap bisa null jika tidak ada perubahan gambar
+                bitmap = bitmap, // Bitmap bisa null jika belum ada gambar baru dipilih
                 produk = produkToEdit, // Teruskan produk yang akan diedit
-                onDismissRequest = { showEditProdukDialog = false; produkToEdit = null; bitmap = null }) { brandName, price, stock, category ->
-                Toast.makeText(context, "Mengupdate produk...", Toast.LENGTH_SHORT).show()
-                val priceInt = price.toIntOrNull() ?: 0
-                val stockInt = stock.toIntOrNull() ?: 0
-                viewModel.updateData(
-                    id = produkToEdit!!.id, // Ambil ID produk dari produkToEdit
-                    userId = user.email,
-                    brandName = brandName,
-                    price = priceInt,
-                    stock = stockInt,
-                    category = category,
-                    bitmap = bitmap // Bitmap bisa null
-                )
-                showEditProdukDialog = false
-                produkToEdit = null // Reset setelah selesai
-                bitmap = null // Reset bitmap setelah digunakan
-            }
+                onDismissRequest = { showEditProdukDialog = false; produkToEdit = null; bitmap = null },
+                onConfirm = { brandName, price, stock, category ->
+                    Toast.makeText(context, "Mengupdate produk...", Toast.LENGTH_SHORT).show()
+                    val priceInt = price.toIntOrNull() ?: 0
+                    val stockInt = stock.toIntOrNull() ?: 0
+                    viewModel.updateData(
+                        id = produkToEdit!!.id,
+                        userId = user.email,
+                        brandName = brandName,
+                        price = priceInt,
+                        stock = stockInt,
+                        category = category,
+                        bitmap = bitmap // Teruskan bitmap yang mungkin null (jika gambar tidak diganti) atau berisi gambar baru
+                    )
+                    showEditProdukDialog = false
+                    produkToEdit = null
+                    bitmap = null
+                },
+                onImageSelected = { // <-- BARU: Implementasi callback onImageSelected
+                    // Memicu CropImageContract saat tombol "Ganti Foto" di dialog ditekan
+                    val options = CropImageContractOptions(
+                        null, CropImageOptions(
+                            imageSourceIncludeGallery = true, // Izinkan dari galeri
+                            imageSourceIncludeCamera = true,  // Izinkan dari kamera
+                            fixAspectRatio = true
+                        )
+                    )
+                    launcher.launch(options)
+                }
+            )
         }
 
         if (errorMessage != null) {
