@@ -10,16 +10,16 @@ data class KelolaProduk(
     val userId: String,
 
     @Json(name = "brandName")
-    val brandName: String, // Disesuaikan dari namaMerek
+    val brandName: String,
 
     @Json(name = "price")
-    val price: Int, // Disesuaikan dari harga
+    val price: Int,
 
     @Json(name = "stock")
-    val stock: Int, // Disesuaikan dari stok
+    val stock: Int,
 
     @Json(name = "category")
-    val category: String, // Disesuaikan dari kategori
+    val category: String,
 
     @Json(name = "imageUrl")
     val imageUrl: String
@@ -27,8 +27,7 @@ data class KelolaProduk(
 
 
 data class KelolaProdukResponse(
-    // Ubah nama variabel dari 'data' menjadi 'kelolaproduk' dan hapus anotasi @Json
-    val kelolaproduk: List<KelolaProduk>?, // Nama variabel disesuaikan dengan key JSON
+    val kelolaproduk: List<KelolaProduk>?,
 
     @Json(name = "status")
     val status: String,

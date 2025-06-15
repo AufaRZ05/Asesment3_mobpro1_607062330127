@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aufarizazakipradana607062330127.asesment3.model.KelolaProduk
-import com.aufarizazakipradana607062330127.asesment3.model.User
 import com.aufarizazakipradana607062330127.asesment3.network.ApiStatus
 import com.aufarizazakipradana607062330127.asesment3.network.KelolaProdukApi
 import kotlinx.coroutines.Dispatchers
@@ -74,11 +73,11 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun deleteData(Id: Int, userId: String) {
+    fun deleteData(id: Int, userId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                KelolaProdukApi.service.deleteKelolaProduk(Id)
-                data.value = data.value.filter { it.id != Id }
+                KelolaProdukApi.service.deleteKelolaProduk(id)
+                data.value = data.value.filter { it.id != id }
             } catch (e: Exception) {
                 Log.d("MainViewModel", "Failure: ${e.message}")
                 errorMessage.value = "Error: ${e.message}"
@@ -87,30 +86,30 @@ class MainViewModel : ViewModel() {
     }
 
     fun updateData(
-        id: Int, // ID produk yang akan diupdate
+        id: Int,
         userId: String,
         brandName: String,
         price: Int,
         stock: Int,
         category: String,
-        bitmap: Bitmap? // Bitmap bisa null jika tidak ada perubahan gambar
+        bitmap: Bitmap?
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val imagePart: MultipartBody.Part? = bitmap?.toMultipartBody() // Membuat MultipartBody.Part hanya jika bitmap tidak null
+                val imagePart: MultipartBody.Part? = bitmap?.toMultipartBody()
 
                 val result = KelolaProdukApi.service.updateKelolaProduk(
-                    id = id.toString(), // ID produk diubah ke String untuk @Path
+                    id = id.toString(),
                     userId = userId.toRequestBody("text/plain".toMediaType()),
                     brandName = brandName.toRequestBody("text/plain".toMediaType()),
                     price = price.toString().toRequestBody("text/plain".toMediaType()),
                     stock = stock.toString().toRequestBody("text/plain".toMediaType()),
                     category = category.toRequestBody("text/plain".toMediaType()),
-                    image = imagePart // Kirim imagePart yang bisa null
+                    image = imagePart
                 )
 
                 if (result.status == "200") {
-                    retrieveData(userId) // Refresh data setelah update
+                    retrieveData(userId)
                 } else {
                     throw Exception(result.message)
                 }

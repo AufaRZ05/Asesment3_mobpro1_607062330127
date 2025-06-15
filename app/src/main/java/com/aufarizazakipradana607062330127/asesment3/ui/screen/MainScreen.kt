@@ -101,11 +101,10 @@ fun MainScreen(){
     val launcher = rememberLauncherForActivityResult(CropImageContract()) {
         bitmap = getCroppedImage(context.contentResolver, it)
         if (bitmap != null) {
-            // Ketika gambar baru dipilih dari gallery/camera, tentukan apakah ini untuk tambah atau edit
-            if (produkToEdit == null) { // Jika tidak ada produk yang sedang diedit, ini untuk menambah
+            if (produkToEdit == null) {
                 showKelolaProdukDialog = true
-            } else { // Jika ada produk yang sedang diedit, ini untuk mengganti gambar pada mode edit
-                showEditProdukDialog = true // Tetap tampilkan dialog edit
+            } else {
+                showEditProdukDialog = true
             }
         }
     }
@@ -114,7 +113,6 @@ fun MainScreen(){
         if (user.email.isNotEmpty()) {
             viewModel.retrieveData(user.email)
         } else {
-            // Jika user logout, tampilkan data "all" atau kosongkan list
             viewModel.retrieveData("all")
         }
     }
@@ -169,14 +167,14 @@ fun MainScreen(){
             viewModel = viewModel,
             modifier = Modifier.padding(innerPadding),
             userId = user.email,
-            onDeleteClick = { produk -> // <-- Ini adalah lambda yang akan dipanggil dari ListItem
-                produkToDelete = produk // Simpan produk yang akan dihapus
-                showDeleteDialog = true // Tampilkan dialog
+            onDeleteClick = { produk ->
+                produkToDelete = produk
+                showDeleteDialog = true
             },
-            onEditClick = { produk -> // Callback untuk edit
+            onEditClick = { produk ->
                 produkToEdit = produk
-                showEditProdukDialog = true // Tampilkan dialog edit
-                bitmap = null // Reset bitmap agar tidak pakai gambar lama dari proses add/edit sebelumnya
+                showEditProdukDialog = true
+                bitmap = null
             }
         )
 
@@ -201,7 +199,7 @@ fun MainScreen(){
                     showKelolaProdukDialog = false
                     bitmap = null
                 },
-                onImageSelected = { /* Tidak ada aksi di sini untuk mode tambah, karena FAB sudah memicu pemilihan gambar */ }
+                onImageSelected = {  }
             )
         }
 
@@ -218,24 +216,23 @@ fun MainScreen(){
 
         if (showDeleteDialog && produkToDelete != null) {
             DeleteProdukDialog(
-                produk = produkToDelete!!, // Pastikan produkToDelete tidak null
+                produk = produkToDelete!!,
                 onDismissRequest = {
-                    showDeleteDialog = false // Tutup dialog jika dibatalkan/dismiss
-                    produkToDelete = null // Reset produk yang akan dihapus
+                    showDeleteDialog = false
+                    produkToDelete = null
                 },
                 onConfirmDelete = {
-                    // Panggil fungsi deleteData dari ViewModel
-                    viewModel.deleteData(produkToDelete!!.id, user.email) // Kirim ID dan userId
-                    showDeleteDialog = false // Tutup dialog setelah konfirmasi
-                    produkToDelete = null // Reset produk yang akan dihapus
+                    viewModel.deleteData(produkToDelete!!.id, user.email)
+                    showDeleteDialog = false
+                    produkToDelete = null
                 }
             )
         }
 
         if (showEditProdukDialog && produkToEdit != null) {
             KelolaProdukDialog(
-                bitmap = bitmap, // Bitmap bisa null jika belum ada gambar baru dipilih
-                produk = produkToEdit, // Teruskan produk yang akan diedit
+                bitmap = bitmap,
+                produk = produkToEdit,
                 onDismissRequest = { showEditProdukDialog = false; produkToEdit = null; bitmap = null },
                 onConfirm = { brandName, price, stock, category ->
                     Toast.makeText(context, "Mengupdate produk...", Toast.LENGTH_SHORT).show()
@@ -248,18 +245,17 @@ fun MainScreen(){
                         price = priceInt,
                         stock = stockInt,
                         category = category,
-                        bitmap = bitmap // Teruskan bitmap yang mungkin null (jika gambar tidak diganti) atau berisi gambar baru
+                        bitmap = bitmap
                     )
                     showEditProdukDialog = false
                     produkToEdit = null
                     bitmap = null
                 },
-                onImageSelected = { // <-- BARU: Implementasi callback onImageSelected
-                    // Memicu CropImageContract saat tombol "Ganti Foto" di dialog ditekan
+                onImageSelected = {
                     val options = CropImageContractOptions(
                         null, CropImageOptions(
-                            imageSourceIncludeGallery = true, // Izinkan dari galeri
-                            imageSourceIncludeCamera = true,  // Izinkan dari kamera
+                            imageSourceIncludeGallery = true,
+                            imageSourceIncludeCamera = true,
                             fixAspectRatio = true
                         )
                     )
@@ -306,9 +302,8 @@ fun ScreenContent(
                     items(data) { kelolaProduk ->
                         ListItem(
                             kelolaproduk = kelolaProduk,
-                            onDeleteClick = onDeleteClick,
                             onEditClick = onEditClick,
-                            viewModel = viewModel // <-- Meneruskan callback
+                            onDeleteClick = onDeleteClick
                         )
                     }
                 }
@@ -344,10 +339,9 @@ fun ScreenContent(
 @Composable
 fun ListItem(
     kelolaproduk: KelolaProduk,
-    viewModel: MainViewModel,
     onDeleteClick: (KelolaProduk) -> Unit,
     onEditClick: (KelolaProduk) -> Unit
-    ) {
+) {
     Box(
         modifier = Modifier.padding(4.dp).border(1.dp, Color.Gray),
         contentAlignment = Alignment.BottomCenter
@@ -389,12 +383,12 @@ fun ListItem(
             )
             IconButton(
                 onClick = {
-                    onEditClick(kelolaproduk) // Panggil callback edit
+                    onEditClick(kelolaproduk)
                 },
-                modifier = Modifier.padding(end = 4.dp) // Sedikit padding antara ikon
+                modifier = Modifier.padding(end = 4.dp)
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.baseline_edit_24), // Pastikan ini ada
+                    painter = painterResource(id = R.drawable.baseline_edit_24),
                     contentDescription = "Edit",
                     tint = Color.White
                 )

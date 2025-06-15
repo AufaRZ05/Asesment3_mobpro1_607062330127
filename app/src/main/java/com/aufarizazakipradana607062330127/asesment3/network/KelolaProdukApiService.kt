@@ -10,7 +10,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -49,19 +48,19 @@ interface KelolaProdukApiService {
 
     @DELETE("/kelolaproduk/{Id}")
     suspend fun deleteKelolaProduk(
-        @Path("Id") Id: Int
+        @Path("Id") id: Int
     )
 
     @Multipart
-    @PUT("/kelolaproduk/{id}") // Menggunakan PUT dan ID di Path
+    @PUT("/kelolaproduk/{id}")
     suspend fun updateKelolaProduk(
-        @Path("id") id: String, // ID produk di path
+        @Path("id") id: String,
         @Part("userId") userId: RequestBody,
         @Part("brandName") brandName: RequestBody,
         @Part("price") price: RequestBody,
         @Part("stock") stock: RequestBody,
         @Part("category") category: RequestBody,
-        @Part image: MultipartBody.Part? // Gambar bisa null jika tidak diupdate
+        @Part image: MultipartBody.Part?
     ): OpStatus
 }
 

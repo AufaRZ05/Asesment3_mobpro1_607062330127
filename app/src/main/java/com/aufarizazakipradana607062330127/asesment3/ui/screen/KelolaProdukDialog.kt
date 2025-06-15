@@ -35,7 +35,7 @@ import com.aufarizazakipradana607062330127.asesment3.ui.theme.Asesment3Theme
 @Composable
 fun KelolaProdukDialog(
     bitmap: Bitmap?,
-    produk: KelolaProduk? = null, // Parameter baru: produk yang akan diedit (default null untuk mode tambah)
+    produk: KelolaProduk? = null,
     onDismissRequest: () -> Unit,
     onConfirm: (
         brandName: String,
@@ -45,7 +45,7 @@ fun KelolaProdukDialog(
     ) -> Unit,
     onImageSelected: () -> Unit
 ) {
-    var brandName by remember { mutableStateOf(produk?.brandName ?: "") } // Isi dengan data produk jika ada
+    var brandName by remember { mutableStateOf(produk?.brandName ?: "") }
     var price by remember { mutableStateOf(produk?.price?.toString() ?: "") }
     var stock by remember { mutableStateOf(produk?.stock?.toString() ?: "") }
     var category by remember { mutableStateOf(produk?.category ?: "") }
@@ -74,7 +74,6 @@ fun KelolaProdukDialog(
         },
         text = {
             Column {
-                // Tampilkan gambar yang dipilih atau gambar produk jika dalam mode edit
                 if (bitmap != null) {
                     Image(
                         bitmap = bitmap.asImageBitmap(),
@@ -99,7 +98,7 @@ fun KelolaProdukDialog(
                     )
                 } else {
                     Image(
-                        painter = painterResource(id = R.drawable.broken_img), // Gunakan placeholder jika tidak ada gambar
+                        painter = painterResource(id = R.drawable.broken_img),
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -112,10 +111,10 @@ fun KelolaProdukDialog(
                 if (isEditMode) {
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedButton(
-                        onClick = onImageSelected, // Panggil callback saat tombol ditekan
+                        onClick = onImageSelected,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = stringResource(id = R.string.ganti_foto)) // Tambahkan string resource ini
+                        Text(text = stringResource(id = R.string.ganti_foto))
                     }
                 }
 
