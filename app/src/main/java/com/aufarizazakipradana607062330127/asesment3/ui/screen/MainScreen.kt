@@ -36,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -94,6 +95,15 @@ fun MainScreen(){
     val launcher = rememberLauncherForActivityResult(CropImageContract()) {
         bitmap = getCroppedImage(context.contentResolver, it)
         if (bitmap != null) showKelolaProdukDialog = true
+    }
+
+    LaunchedEffect(user.email) {
+        if (user.email.isNotEmpty()) {
+            viewModel.retrieveData(user.email)
+        } else {
+            // Jika user logout, tampilkan data "all" atau kosongkan list
+            viewModel.retrieveData("all")
+        }
     }
 
     Scaffold (
@@ -157,6 +167,7 @@ fun MainScreen(){
             KelolaProdukDialog(
                 bitmap = bitmap,
                 onDismissRequest = { showKelolaProdukDialog = false}) { namaMerek, harga, stok, kategori ->
+                Toast.makeText(context, "Menyimpan produk...", Toast.LENGTH_SHORT).show()
                 val hargaInt = harga.toIntOrNull() ?: 0
                 val stokInt = stok.toIntOrNull() ?: 0
                 viewModel.saveData(user.email, namaMerek, hargaInt, stokInt, kategori, bitmap!!)
@@ -187,12 +198,21 @@ fun ScreenContent(viewModel: MainViewModel ,modifier: Modifier = Modifier, userI
         }
 
         ApiStatus.SUCCESS -> {
-            LazyVerticalGrid(
-                modifier = modifier.fillMaxSize().padding(4.dp),
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(bottom = 80.dp)
-            ) {
-                items(data) { ListItem(kelolaproduk = it) }
+            if (data.isNotEmpty()) {
+                LazyVerticalGrid(
+                    modifier = modifier.fillMaxSize().padding(4.dp),
+                    columns = GridCells.Fixed(2),
+                    contentPadding = PaddingValues(bottom = 80.dp)
+                ) {
+                    items(data) { ListItem(kelolaproduk = it) }
+                }
+            } else {
+                Box(
+                    modifier = modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "Belum ada produk untuk ditampilkan.")
+                }
             }
         }
 
@@ -223,7 +243,7 @@ fun ListItem(kelolaproduk: KelolaProduk) {
     ) {
         AsyncImage(
             model = kelolaproduk.imageUrl,
-            contentDescription = stringResource(R.string.gambar, kelolaproduk.namaMerek),
+            contentDescription = stringResource(R.string.gambar, kelolaproduk.brandName),
             contentScale = ContentScale.Crop,
             placeholder = painterResource(id = R.drawable.loading_img),
             error = painterResource(id = R.drawable.broken_img),
@@ -237,22 +257,22 @@ fun ListItem(kelolaproduk: KelolaProduk) {
                 .fillMaxWidth()
         ) {
             Text(
-                text = kelolaproduk.namaMerek,
+                text = kelolaproduk.brandName,
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.White
             )
             Text(
-                text = "Rp ${kelolaproduk.harga}",
+                text = "Rp ${kelolaproduk.price}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White
             )
             Text(
-                text = "${kelolaproduk.stok} Item",
+                text = "${kelolaproduk.stock} Item",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White
             )
             Text(
-                text = kelolaproduk.kategori,
+                text = kelolaproduk.category,
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White
             )
