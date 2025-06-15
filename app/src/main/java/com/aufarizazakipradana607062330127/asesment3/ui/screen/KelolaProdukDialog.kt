@@ -3,126 +3,147 @@ package com.aufarizazakipradana607062330127.asesment3.ui.screen
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Card
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
+import coil.compose.AsyncImage
 import com.aufarizazakipradana607062330127.asesment3.R
+import com.aufarizazakipradana607062330127.asesment3.model.KelolaProduk
 import com.aufarizazakipradana607062330127.asesment3.ui.theme.Asesment3Theme
 
 @Composable
 fun KelolaProdukDialog(
     bitmap: Bitmap?,
+    produk: KelolaProduk? = null, // Parameter baru: produk yang akan diedit (default null untuk mode tambah)
     onDismissRequest: () -> Unit,
-    onConfirmation: (String, String, String, String) -> Unit
+    onConfirm: (
+        brandName: String,
+        price: String,
+        stock: String,
+        category: String
+    ) -> Unit
 ) {
-    var namaMerek by remember { mutableStateOf("") }
-    var harga by remember { mutableStateOf("") }
-    var stok by remember { mutableStateOf("") }
-    var kategori by remember { mutableStateOf("") }
+    var brandName by remember { mutableStateOf(produk?.brandName ?: "") } // Isi dengan data produk jika ada
+    var price by remember { mutableStateOf(produk?.price?.toString() ?: "") }
+    var stock by remember { mutableStateOf(produk?.stock?.toString() ?: "") }
+    var category by remember { mutableStateOf(produk?.category ?: "") }
 
+    val isEditMode = produk != null
 
-    Dialog(onDismissRequest = { onDismissRequest() }) {
-        Card(
-            modifier = Modifier.padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        confirmButton = {
+            Button(
+                onClick = {
+                    onConfirm(brandName, price, stock, category)
+                },
+                enabled = brandName.isNotBlank() && price.isNotBlank() && stock.isNotBlank() && category.isNotBlank()
             ) {
-                Image(
-                    bitmap = bitmap!!.asImageBitmap(),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxWidth().aspectRatio(1f)
-                )
-                OutlinedTextField(
-                    value = namaMerek,
-                    onValueChange = { namaMerek = it },
-                    label = { Text(text = stringResource(id = R.string.nama_merek))},
-                    maxLines = 1,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Words,
-                        imeAction = ImeAction.Next
-                    ),
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-                OutlinedTextField(
-                    value = harga,
-                    onValueChange = { harga = it },
-                    label = { Text(text = stringResource(id = R.string.harga))},
-                    maxLines = 1,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Words,
-                        imeAction = ImeAction.Next
-                    ),
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-                OutlinedTextField(
-                    value = stok,
-                    onValueChange = { stok = it },
-                    label = { Text(text = stringResource(id = R.string.stok))},
-                    maxLines = 1,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Words,
-                        imeAction = ImeAction.Next
-                    ),
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-                OutlinedTextField(
-                    value = kategori,
-                    onValueChange = { kategori = it },
-                    label = { Text(text = stringResource(id = R.string.kategori))},
-                    maxLines = 1,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences,
-                        imeAction = ImeAction.Done
-                    ),
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    OutlinedButton(
-                        onClick = { onDismissRequest() },
-                        modifier = Modifier.padding(8.dp)
-                    ) {
-                        Text(text = stringResource(R.string.batal))
-                    }
-                    OutlinedButton(
-                        onClick = { onConfirmation(namaMerek, harga, stok, kategori) },
-                        enabled = namaMerek.isNotEmpty() && harga.isNotEmpty() && stok.isNotEmpty() && kategori.isNotEmpty(),
-                        modifier = Modifier.padding(8.dp)
-                    ) {
-                        Text(text = stringResource(R.string.simpan))
-                    }
-                }
+                Text(text = stringResource(id = if (isEditMode) R.string.update else R.string.simpan))
             }
-        }
-    }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text(text = stringResource(id = R.string.batal))
+            }
+        },
+        title = {
+            Text(text = stringResource(id = if (isEditMode) R.string.edit_produk else R.string.tambah_produk_baru))
+        },
+        text = {
+            Column {
+                // Tampilkan gambar yang dipilih atau gambar produk jika dalam mode edit
+                if (bitmap != null) {
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp)
+                            .padding(8.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                } else if (isEditMode && produk?.imageUrl != null) {
+                    AsyncImage(
+                        model = produk.imageUrl,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp)
+                            .padding(8.dp),
+                        contentScale = ContentScale.Fit,
+                        placeholder = painterResource(id = R.drawable.loading_img),
+                        error = painterResource(id = R.drawable.broken_img)
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.broken_img), // Gunakan placeholder jika tidak ada gambar
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp)
+                            .padding(8.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = brandName,
+                    onValueChange = { brandName = it },
+                    label = { Text(text = stringResource(id = R.string.nama_merek)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = price,
+                    onValueChange = { price = it },
+                    label = { Text(text = stringResource(id = R.string.harga)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = stock,
+                    onValueChange = { stock = it },
+                    label = { Text(text = stringResource(id = R.string.stok)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = category,
+                    onValueChange = { category = it },
+                    label = { Text(text = stringResource(id = R.string.kategori
+                    )) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        shape = RoundedCornerShape(16.dp)
+    )
 }
 
 @Preview(showBackground = true)
@@ -133,7 +154,7 @@ fun AddDialogPreview() {
         KelolaProdukDialog(
             bitmap = null,
             onDismissRequest = {},
-            onConfirmation = { _, _, _, _ -> }
+            onConfirm = { _, _, _, _ -> }
         )
     }
 }

@@ -13,6 +13,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -38,8 +39,6 @@ interface KelolaProdukApiService {
     @Multipart
     @POST("/kelolaproduk")
     suspend fun postKelolaProduk(
-        // HAPUS baris @Header("Authorization")
-        // GANTI dengan @Part("userId")
         @Part("userId") userId: RequestBody,
         @Part("brandName") brandName: RequestBody,
         @Part("price") price: RequestBody,
@@ -53,6 +52,17 @@ interface KelolaProdukApiService {
         @Path("Id") Id: Int
     )
 
+    @Multipart
+    @PUT("/kelolaproduk/{id}") // Menggunakan PUT dan ID di Path
+    suspend fun updateKelolaProduk(
+        @Path("id") id: String, // ID produk di path
+        @Part("userId") userId: RequestBody,
+        @Part("brandName") brandName: RequestBody,
+        @Part("price") price: RequestBody,
+        @Part("stock") stock: RequestBody,
+        @Part("category") category: RequestBody,
+        @Part image: MultipartBody.Part? // Gambar bisa null jika tidak diupdate
+    ): OpStatus
 }
 
 object KelolaProdukApi {

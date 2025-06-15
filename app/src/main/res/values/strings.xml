@@ -15,4 +15,7 @@
     <string name="simpan">Simpan</string>
     <string name="konfirmasi_hapus">Konfirmasi Hapus</string>
     <string name="hapus">Hapus</string>
+    <string name="update">Update</string>
+    <string name="tambah_produk_baru">Tambah Produk Baru</string>
+    <string name="edit_produk">Edit Produk</string>
 </resources>

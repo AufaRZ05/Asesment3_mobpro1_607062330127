@@ -94,10 +94,20 @@ fun MainScreen(){
     var showDeleteDialog by remember { mutableStateOf(false) }
     var produkToDelete by remember { mutableStateOf<KelolaProduk?>(null) }
 
+    var showEditProdukDialog by remember { mutableStateOf(false) }
+    var produkToEdit by remember { mutableStateOf<KelolaProduk?>(null) }
+
     var bitmap: Bitmap? by remember { mutableStateOf(null) }
     val launcher = rememberLauncherForActivityResult(CropImageContract()) {
         bitmap = getCroppedImage(context.contentResolver, it)
-        if (bitmap != null) showKelolaProdukDialog = true
+        if (bitmap != null) {
+            // Ketika gambar baru dipilih dari gallery/camera, tentukan apakah ini untuk tambah atau edit
+            if (produkToEdit == null) { // Jika tidak ada produk yang sedang diedit, ini untuk menambah
+                showKelolaProdukDialog = true
+            } else { // Jika ada produk yang sedang diedit, ini untuk mengganti gambar pada mode edit
+                showEditProdukDialog = true // Tetap tampilkan dialog edit
+            }
+        }
     }
 
     LaunchedEffect(user.email) {
@@ -162,6 +172,11 @@ fun MainScreen(){
             onDeleteClick = { produk -> // <-- Ini adalah lambda yang akan dipanggil dari ListItem
                 produkToDelete = produk // Simpan produk yang akan dihapus
                 showDeleteDialog = true // Tampilkan dialog
+            },
+            onEditClick = { produk -> // Callback untuk edit
+                produkToEdit = produk
+                showEditProdukDialog = true // Tampilkan dialog edit
+                bitmap = null // Reset bitmap agar tidak pakai gambar lama dari proses add/edit sebelumnya
             }
         )
 
@@ -213,6 +228,29 @@ fun MainScreen(){
             )
         }
 
+        if (showEditProdukDialog && produkToEdit != null) {
+            KelolaProdukDialog(
+                bitmap = bitmap, // Bitmap bisa null jika tidak ada perubahan gambar
+                produk = produkToEdit, // Teruskan produk yang akan diedit
+                onDismissRequest = { showEditProdukDialog = false; produkToEdit = null; bitmap = null }) { brandName, price, stock, category ->
+                Toast.makeText(context, "Mengupdate produk...", Toast.LENGTH_SHORT).show()
+                val priceInt = price.toIntOrNull() ?: 0
+                val stockInt = stock.toIntOrNull() ?: 0
+                viewModel.updateData(
+                    id = produkToEdit!!.id, // Ambil ID produk dari produkToEdit
+                    userId = user.email,
+                    brandName = brandName,
+                    price = priceInt,
+                    stock = stockInt,
+                    category = category,
+                    bitmap = bitmap // Bitmap bisa null
+                )
+                showEditProdukDialog = false
+                produkToEdit = null // Reset setelah selesai
+                bitmap = null // Reset bitmap setelah digunakan
+            }
+        }
+
         if (errorMessage != null) {
             Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
             viewModel.clearMessage()
@@ -221,7 +259,13 @@ fun MainScreen(){
 }
 
 @Composable
-fun ScreenContent(viewModel: MainViewModel ,modifier: Modifier = Modifier, userId: String,  onDeleteClick: (KelolaProduk) -> Unit) {
+fun ScreenContent(
+    viewModel: MainViewModel,
+    modifier: Modifier = Modifier,
+    userId: String,
+    onDeleteClick: (KelolaProduk) -> Unit,
+    onEditClick: (KelolaProduk) -> Unit
+) {
     val data by viewModel.data
     val status by viewModel.status.collectAsState()
 
@@ -246,6 +290,7 @@ fun ScreenContent(viewModel: MainViewModel ,modifier: Modifier = Modifier, userI
                         ListItem(
                             kelolaproduk = kelolaProduk,
                             onDeleteClick = onDeleteClick,
+                            onEditClick = onEditClick,
                             viewModel = viewModel // <-- Meneruskan callback
                         )
                     }
@@ -280,7 +325,12 @@ fun ScreenContent(viewModel: MainViewModel ,modifier: Modifier = Modifier, userI
 }
 
 @Composable
-fun ListItem(kelolaproduk: KelolaProduk, viewModel: MainViewModel, onDeleteClick: (KelolaProduk) -> Unit) {
+fun ListItem(
+    kelolaproduk: KelolaProduk,
+    viewModel: MainViewModel,
+    onDeleteClick: (KelolaProduk) -> Unit,
+    onEditClick: (KelolaProduk) -> Unit
+    ) {
     Box(
         modifier = Modifier.padding(4.dp).border(1.dp, Color.Gray),
         contentAlignment = Alignment.BottomCenter
@@ -320,6 +370,18 @@ fun ListItem(kelolaproduk: KelolaProduk, viewModel: MainViewModel, onDeleteClick
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White
             )
+            IconButton(
+                onClick = {
+                    onEditClick(kelolaproduk) // Panggil callback edit
+                },
+                modifier = Modifier.padding(end = 4.dp) // Sedikit padding antara ikon
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_edit_24), // Pastikan ini ada
+                    contentDescription = "Edit",
+                    tint = Color.White
+                )
+            }
             IconButton(
                 onClick = {
                     onDeleteClick(kelolaproduk)

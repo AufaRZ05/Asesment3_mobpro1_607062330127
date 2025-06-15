@@ -86,6 +86,41 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun updateData(
+        id: Int, // ID produk yang akan diupdate
+        userId: String,
+        brandName: String,
+        price: Int,
+        stock: Int,
+        category: String,
+        bitmap: Bitmap? // Bitmap bisa null jika tidak ada perubahan gambar
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val imagePart: MultipartBody.Part? = bitmap?.toMultipartBody() // Membuat MultipartBody.Part hanya jika bitmap tidak null
+
+                val result = KelolaProdukApi.service.updateKelolaProduk(
+                    id = id.toString(), // ID produk diubah ke String untuk @Path
+                    userId = userId.toRequestBody("text/plain".toMediaType()),
+                    brandName = brandName.toRequestBody("text/plain".toMediaType()),
+                    price = price.toString().toRequestBody("text/plain".toMediaType()),
+                    stock = stock.toString().toRequestBody("text/plain".toMediaType()),
+                    category = category.toRequestBody("text/plain".toMediaType()),
+                    image = imagePart // Kirim imagePart yang bisa null
+                )
+
+                if (result.status == "200") {
+                    retrieveData(userId) // Refresh data setelah update
+                } else {
+                    throw Exception(result.message)
+                }
+            } catch (e: Exception) {
+                Log.d("MainViewModel", "Failure updating: ${e.message}")
+                errorMessage.value = "Error updating: ${e.message}"
+            }
+        }
+    }
+
     private fun Bitmap.toMultipartBody(): MultipartBody.Part {
         val stream = ByteArrayOutputStream()
         compress(Bitmap.CompressFormat.JPEG, 80, stream)
