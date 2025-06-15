@@ -10,21 +10,25 @@ import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -44,7 +48,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -342,72 +346,69 @@ fun ListItem(
     onDeleteClick: (KelolaProduk) -> Unit,
     onEditClick: (KelolaProduk) -> Unit
 ) {
-    Box(
-        modifier = Modifier.padding(4.dp).border(1.dp, Color.Gray),
-        contentAlignment = Alignment.BottomCenter
+    Card(
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
-        AsyncImage(
-            model = kelolaproduk.imageUrl,
-            contentDescription = stringResource(R.string.gambar, kelolaproduk.brandName),
-            contentScale = ContentScale.Crop,
-            placeholder = painterResource(id = R.drawable.loading_img),
-            error = painterResource(id = R.drawable.broken_img),
-            modifier = Modifier.fillMaxWidth().padding(4.dp)
-        )
         Column(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .background(Color(0x99000000))
-                .padding(8.dp)
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = kelolaproduk.brandName,
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.White
+            AsyncImage(
+                model = kelolaproduk.imageUrl,
+                contentDescription = stringResource(R.string.gambar, kelolaproduk.brandName),
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(id = R.drawable.loading_img),
+                error = painterResource(id = R.drawable.broken_img),
+                modifier = Modifier
+                    .height(160.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
             )
-            Text(
-                text = "Rp ${kelolaproduk.price}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White
-            )
-            Text(
-                text = "${kelolaproduk.stock} Item",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White
-            )
-            Text(
-                text = kelolaproduk.category,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White
-            )
-            IconButton(
-                onClick = {
-                    onEditClick(kelolaproduk)
-                },
-                modifier = Modifier.padding(end = 4.dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_edit_24),
-                    contentDescription = "Edit",
-                    tint = Color.White
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(
+                    text = kelolaproduk.brandName,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1
                 )
-            }
-            IconButton(
-                onClick = {
-                    onDeleteClick(kelolaproduk)
+                Text(
+                    text = "Rp ${kelolaproduk.price}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "${kelolaproduk.stock} item",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    text = kelolaproduk.category,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    IconButton(onClick = { onEditClick(kelolaproduk) }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.baseline_edit_24),
+                            contentDescription = "Edit"
+                        )
+                    }
+                    IconButton(onClick = { onDeleteClick(kelolaproduk) }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.baseline_delete_24),
+                            contentDescription = "Hapus"
+                        )
+                    }
                 }
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_delete_24),
-                    contentDescription = "Hapus",
-                    tint = Color.White
-                )
             }
-
         }
     }
 }
+
 
 private suspend fun signIn(context: Context, dataStore: UserDataStore) {
     val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
